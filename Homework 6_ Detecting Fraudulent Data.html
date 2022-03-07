@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Homework 6: Detecting Fraudulent Data</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="../hw.css">
+  <!--- HW6-specific style overrides -->
+  <style>
+    table#sample-data {
+      border-spacing: 0;
+      width: initial;
+      margin: auto;
+      padding: 4px;
+    }
+
+    #sample-data th {
+      border: 1px solid black;
+      padding: 0.5em 2em;
+    }
+
+    #sample-data td {
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+<h1 id="start">Homework 6: Detecting Fraudulent Data</h1> <!-- omit from toc -->
+
+
+<!--<h2 id="contents">Contents</h2>--> <!-- omit from toc -->
+
+<ul id="toc">
+  <strong>Contents:</strong>
+  <li><a href="#start">Homework 6</a>
+    <ul>
+      <li><a href="#logistics">Logistics</a></li>
+      <li><a href="#objectives">Learning Objectives</a></li>
+      <li><a href="#warnings">Warnings &amp; Advice</a></li>
+      <li><a href="#style">Coding style</a></li>
+      <li><a href="#testing">Testing Tips</a></li>
+    </ul>
+  </li>
+  <li><a href="#part-1">Detecting fraudulent data</a>
+    <ul>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#problem0">Problem 0: Getting Started</a></li>
+      <li><a href="#problem1">Problem 1:  Read and clean Iranian election data</a></li>
+      <li><a href="#problem2">Problem 2: Make a histogram</a></li>
+      <li><a href="#problem3">Problem 3: Plot election data</a></li>
+      <li><a href="#problem4">Problem 4: Smaller samples have more variation</a></li>
+      <li><a href="#problem5">Problem 5: Comparing variation of samples</a></li>
+      <li><a href="#statistics">Statistics background</a></li>
+      <li><a href="#problem6">Problem 6: Comparing variation of samples</a></li>
+      <li><a href="#interpret-results">Interpreting statistical results</a></li>
+      <li><a href="#problem7">Problem 7: Interpret your results</a></li>
+      <li><a href="#problem8">Problem 8: Other datasets</a></li>
+    </ul></li>
+    <li><a href="#part-1-submit">Submit</a></li>
+</ul>
+
+<!-- end toc -->
+<h2 id="logistics">Logistics</h2>
+<p>
+  <b>Due</b>: at 11:59pm on Friday, March 11th, 2021. Only ONE late day may be applied to HW6. HW6
+  will not be accepted after 11:59pm on Sunday March 13.<br /> Submit your
+  <tt>fraud_detection.py</tt>, <tt>fraud_detection_tests.py</tt>, <tt>answers.txt</tt> files via <a
+    href="https://www.gradescope.com/courses/345007/assignments/1904630">Gradescope</a>. (REQUIRED <a
+    href="https://canvas.uw.edu/courses/1515240/quizzes/1598273">survey</a>)
+
+</p>
+
+<p>A video introduction to the assignment. <a href="https://uw.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=11457a2e-1d67-4382-823d-ae4d002145b1">Direct video link</a>.<br> 
+<iframe src="https://uw.hosted.panopto.com/Panopto/Pages/Embed.aspx?id=11457a2e-1d67-4382-823d-ae4d002145b1&autoplay=false&offerviewer=true&showtitle=true&showbrand=true&captions=false&interactivity=all" height="405" width="720" style="border: 1px solid #464646;" allowfullscreen allow="autoplay"></iframe>
+
+
+<h2 id="objectives">Learning Objectives:</h2>
+<ul>
+  <li>Gain practice with the basics of statistical testing
+  </li>
+  <li>Plot the result of simulations in Python
+  </li>
+  <li>Write a Python program in good style and without a provided template
+  </li>
+  <li>Write Python code to analyze election results and <a
+      href="https://en.wikipedia.org/wiki/Results_of_the_Iranian_presidential_election,_2009">detect
+      fraud in a data set</a>
+  </li>
+</ul>
+
+<h2 id="warnings">Warnings & Advice</h2>
+
+<p>
+For all of our assignments you should NOT use parts of Python not yet discussed in class or the course readings.
+</p>
+
+<p>Advice from previous students about this assignment:</p>
+<ul>
+<li><a href="HW6-Advice-14wi.txt">14wi</a></li>
+<li><a href="HW6-Advice-15sp.txt">15sp</a></li>
+</ul>
+
+<p>
+  <b>Important:</b> Leave yourself some time to go back and refactor
+  your code before you turn it in. Whenever you make a change to your
+  program, ensure that it produces the same (or better) results as before. <b>Pay
+    close attention to the <a href="#style">coding style</a> section of the specification
+    as it will be a large portion of your grade.</b> It is very possible to get a low grade
+    on this assignment even if your program correctly executes the requested calculations if you
+    are not paying attention to style.
+  </p>
+
+
+<h2 id="style">Coding style</h2>
+
+<p>
+A portion of your grade depends on use of good coding style.
+Code written in good style is easier to read and understand, is easier to
+modify, and is less likely to contain errors. You should comment clearly,
+create functions as needed, and minimize redundancy (Don't Repeat
+Yourself).
+</p>
+
+<p>
+Your program's documentation should allow us to understand it. You can get some
+ideas on how to document your code from the starter code of previous
+assignments.
+Follow good <a href="http://www.python.org/dev/peps/pep-0257/">docstring
+  conventions</a> (You do not have to follow these conventions to the
+letter).
+</p>
+
+<p>
+Different parts of this assignment require similar, but not exactly
+identical, work.  When you notice such repetition, you should
+<a href="http://en.wikipedia.org/wiki/Code_refactoring">refactor</a>
+and generalize your code.  That is, rather than writing two similar
+functions, you should write one function that takes the place of most of
+both.
+</p>
+
+<p>
+You should decompose functions into smaller helper functions. One usual good
+rule of thumb is that if you cannot come up with a descriptive name for a
+function, then it may be too small or too large. If there is a good name
+for a portion of a function, then you might consider abstracting it out into
+a helper function. Please remember to add docstrings to all functions.
+</p>
+
+<p>Make sure to add <tt>import</tt> statements to gain access to tools and
+functions that are not included by default, such as <tt>matplotlib.pyplot</tt>
+or <tt>math</tt>.  All <tt>import</tt> statements should be at the top of
+the file, before any function definitions.</p>
+
+<p>Refer to the <a href="../../computing/style_guide.html">style guide</a>
+  for more detailed information.</p>
+
+<h2 id="testing">Testing Tips</h2>
+<ul>
+  <li> We have not provided tests or exact results to check your program
+    against. We encourage you to write your own tests and to
+    use <tt>assert</tt> statements.</li> Refer to the starter code given in
+    <tt>fraud_detection_test.py</tt> for an example of organizing your test
+    functions.
+
+  <li> We HIGHLY encourage you to write tests before writing the functions. 
+    Doing so will allow you to check your work as you write your functions
+    and ensure that you catch more bugs in your code. </li>
+
+  <li> You do not need to test functions that generate plots or print output.
+    Additionally, you do not need to create extra data files for testing, although
+    you are welcome to do so to improve your test suite. However, since you
+    cannot turn in those extra data files, you should comment those tests out
+    in your final submission.</li>
+
+  <li> To compare two floating point numbers (ex: 3.1415 and 2.71828), use
+    <tt>math.isclose()</tt> instead of <tt>==</tt>.</li>
+
+  <li> Try writing test cases with values other than the ones provided
+    in this spec. This will help you catch edge cases your code might not cover.
+  </li>
+
+  <li> Your test function names should be descriptive. You should only be testing
+    one specific function in each of your test functions and it should be clear
+    which one you are testing.
+  </li>
+</ul>
+
+<h1 id="part-1">Detecting fraudulent data</h1>
+
+
+
+
+<h2 id="introduction">Introduction</h2>
+
+<p>
+In this assignment, you will look for fraud in election
+returns from the disputed 2009 Iranian presidential election. You will
+examine the <b>least significant digits</b> of the vote totals &mdash; the ones
+place and the tens place.
+</p>
+
+<p>
+The ones place and the tens place don't affect who wins.  They are
+essentially random noise, in the sense that in any real election, each
+value is equally likely. Another way to say this is that <b>we expect the
+ones and tens digits to be uniformly distributed &mdash; that is, 10% of
+the digits should be &ldquo;0&rdquo;, 10% should be &ldquo;1&rdquo;, and so forth</b>.  If these digits
+are not uniformly distributed, then it is likely that the numbers were made up by a
+person rather than collected from ballot boxes.  (People tend to be poor at
+making up truly random numbers.)
+</p>
+
+<p>It is important to note that a non-uniform distribution does not necessarily mean that the
+data is fraudulent data.  A non-uniform distribution is a great signal for fraudulent data, but
+it is possible for a non-uniform distribution to appear naturally.
+</p>
+
+<p>
+  You will complete this assignment by writing several functions. <b>You must preserve the names,
+    parameters, and output of these functions. DO NOT add more parameters to these functions.</b> The
+  functions that we ask for are as follows:
+</p>
+
+<ul>
+  <li><tt>extract_election_votes(filename, column_names)</tt></li>
+  <li><tt>ones_and_tens_digit_histogram(numbers)</tt></li>
+  <li><tt>plot_iran_least_digits_histogram(histogram)</tt></li>
+  <li><tt>plot_dist_by_sample_size()</tt></li>
+  <li><tt>mean_squared_error(numbers1, numbers2)</tt></li>
+  <li><tt>calculate_mse_with_uniform(histogram)</tt></li>
+  <li><tt>compare_iran_mse_to_samples(iran_mse, number_of_iran_datapoints)</tt></li>
+  <li><tt>compare_us_mse_to_samples(us_mse, number_of_us_datapoints)</tt></li>
+</ul>
+
+<p>
+  Note that you are <b>STRONGLY ENCOURAGED</b> to create additional functions as needed, but we
+  require that the functions above be present with these EXACT names and parameters.
+</p>
+
+<p>
+  Additionally, you'll write a <tt>main</tt> function that will be responsible for calling the other
+  functions.
+</p>
+
+<h2 id="problem0">Problem 0: Getting Started</h2>
+
+<ul>
+    <li>Download and extract the <a href="homework6.zip">homework6.zip</a> file.</li>
+
+    <li>
+      Look through <tt>fraud_detection.py</tt>. Note that the call to <tt>main</tt> inside of it is on the
+      last line in your file, after all of the function definitions. Your program should not execute any
+      code, other than the <tt>main</tt> function, when it is loaded; that is, <b>all code from now on
+        should be inside a function, never at the global level</b>. Think of the <tt>main</tt> function as
+      the "driver" of your program. Everything you want to happen when you run this file should go inside
+      of <tt>main</tt>. <b>Do not place any assert statements outside of functions in
+        <tt>fraud_detection.py</tt>.</b>
+    </li>
+
+    <li>
+      Look through <tt>fraud_detection_tests.py</tt>. Not all functions are easy to test, but we will
+      expect to see tests for many of your functions. Please put all your tests in the file
+      <tt>fraud_detection_tests.py</tt> using an approach similar to what we did in HW5.
+    </li>
+</ul>
+
+
+
+
+<h2 id="problem1">Problem 1:  Read and clean Iranian election data</h2>
+
+<p>
+  There were four candidates in the <a
+    href="https://en.wikipedia.org/wiki/Iranian_presidential_election,_2009">2009 Iranian
+    election</a>: Ahmadinejad, Rezai, Karrubi, and Mousavi. The file <tt>election-iran-2009.csv</tt>
+  contains data, reported by the Iranian government, for each of the 30 provinces. We are interested
+  in the vote counts for each of these candidates. Thus, there are 120 numbers we care about in the
+  file.
+</p>
+
+<p><strong>Requirements:</strong></p>
+
+<p>
+Write a function called <tt>extract_election_votes(filename, column_names)</tt> that:
+</p>
+<ul>
+    <li>Takes a filename and a list of column names</li>
+    <li>Returns a list of integers that contains the values in those columns from every row (the order of the integers does not matter).</li>
+</ul>
+
+<p><strong>Example:</strong></p>
+<p>The call:</p>
+<pre>
+extract_election_votes("election-iran-2009.csv", ["Ahmadinejad", "Rezai", "Karrubi", "Mousavi"])
+</pre>
+<p>Should return:</p>
+<pre>
+[1131111, 16920, 7246, 837858, 623946, 12199, 21609, 656508, ...
+</pre>
+
+<p><b>Hints:</b></p>
+<ul>
+    <li>
+    You should make use of
+    <tt><a href="http://courses.cs.washington.edu/courses/cse160/22wi/computing/csv-parsing.html">csv.DictReader</a></tt>
+    , which will make it easy to read lines from a csv file.
+    </li>
+    <li>Remember to close any file you open in your program.</li>
+
+    <li>We recommend that you open up the csv file and examine the data before writing code.
+    You will notice that the data contains double-quotes and commas.  It is
+    common to receive data that is not formatted quite how you would like for it to
+    be. It is up to you
+    to handle the input by removing these symbols from the data before converting
+    them into numbers. <br/>
+    To do this, you may want to refer to
+    <a href="http://docs.python.org/3.7/library/stdtypes.html#string-methods">String Methods</a> and
+    <tt><a href="http://docs.python.org/3.7/library/functions.html#int">int()</a></tt>
+    from the Python language documentation. In particular, we recommend using the
+    <tt><a href="http://docs.python.org/3.7/library/stdtypes.html#str.replace">replace</a></tt>
+    method to replace unwanted characters with the empty string (<tt>""</tt>).
+    </li>
+</ul>
+
+<h2 id="problem2">Problem 2:  Make a histogram</h2>
+
+<p><strong>Requirements:</strong></p>
+<p>
+Write a function <tt>ones_and_tens_digit_histogram(numbers)</tt> that:
+</p>
+<ul>
+    <li>Takes as input a list of numbers</li>
+    <li>Produces as output a list of 10 numbers.</li>
+</ul>
+<p>Specifically:</p>
+<ul>
+    <li>In the returned list, the value at index <tt>i</tt> is the <b>frequency</b> with which digit <tt>i</tt> appeared in the ones
+place <b>OR</b> the tens place in the input list. (We are pooling
+together all the digits found in the ones places and the tens places
+in the input list.)</li>
+    <li>
+    In the input, in a number that is less than 10, such as 3, the tens
+    place is implicitly zero.  That is, 3 must be treated as 03.  Your
+    code should treat the tens digits of these values as zero.</li>
+</ul>
+
+<p><strong>Examples:</strong></p>
+
+<p>
+Here are some example calls to the function and their results:
+</p>
+
+<p>The call:</p>
+<pre>
+ones_and_tens_digit_histogram([127, 426, 28, 9, 90])
+</pre>
+<p>Should return:</p>
+<pre>
+[0.2, 0.0, 0.3, 0.0, 0.0, 0.0, 0.1, 0.1, 0.1, 0.2]
+</pre>
+
+<p>And the call:</p>
+<pre>
+ones_and_tens_digit_histogram([0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765])
+</pre>
+<p>Should return:</p>
+<pre>
+[0.21428571428571427, 0.14285714285714285, 0.047619047619047616, 0.11904761904761904, 0.09523809523809523, 0.09523809523809523, 0.023809523809523808, 0.09523809523809523, 0.11904761904761904, 0.047619047619047616]
+</pre>
+
+<b>Hints:</b>
+
+<ul>
+<li>
+To get the ones and tens digits of a number, we recommend that you review how the <tt>%</tt>
+and <tt>//</tt> operators work on integers. For example, what is the result of <tt>21 % 10</tt>?
+Why? What is the result of <tt>21 // 10</tt>? Why? What about <tt>3 // 10</tt> and <tt>0 % 10</tt>?
+</li>
+
+<li>
+In order to calculate an average for digit <tt>i</tt>, you will need to know (a) the number of
+times <tt>i</tt> appears in the ones or tens digit &mdash; for the numerator &mdash; and (b) the total number of
+digits &mdash; for the denominator. What should the denominator be? Make sure your averages aren't
+off by a factor of two.
+</li>
+
+<li>
+  To generate a list of the same number <tt>X</tt> with length <tt>N</tt>, you can use the syntax <tt>[X] * N</tt>
+</li>
+
+</ul>
+
+
+
+<h2 id="problem3">Problem 3: Plot election data</h2>
+<p><strong>Requirements:</strong></p>
+<p>
+  Write a function called <tt>plot_iran_least_digits_histogram(histogram)</tt> that:
+</p>
+
+  <ul>
+    <li>Takes a histogram (as created by <tt>ones_and_tens_digit_histogram</tt>)</li>
+    <li>Graphs the frequencies of the ones and tens digits for the Iranian election data.
+    <li>Save your plot to a file named <tt>iran-digits.png</tt> using <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.html"><tt>plt.savefig</tt></a>.</li>
+    <li>The function should not return anything.</li>
+    <li>
+      It is all right to have the name of the output file and labels for the graph hard-coded as
+      strings inside of this function.
+    </li>
+  </ul>
+
+<p><strong>Example:</strong></p>
+<p>
+Calling:
+</p>
+
+<pre>
+plot_iran_least_digits_histogram(histogram)
+</pre>
+
+  <p>
+    on the histogram created from the numbers in <tt>election-iran-2009.csv</tt> should save a plot
+    called <tt>iran-digits.png</tt> that is <b>identical</b> to the following plot.
+  </p>
+  <p>
+    <figure>
+      <img class="medium" src="iran-digits.png" alt="Histogram of last digits of Iran election results">
+      <figcaption>Distribution of the last two digits in the Iranian dataset</figcaption>
+    </figure>
+  </p>
+
+<ul>
+  <li>Don't forget the x- and y-axis labels and the legend
+    (although the entries in the legend can come in any order, and the
+    colors of the lines, and tick marks on the x and y axis may be different). Use <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html"><tt>plt.plot</tt></a>
+    for the line itself (don't forget to use the <tt>label=</tt> optional
+    argument). To create the legend, use
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.legend.html#matplotlib.pyplot.legend"><tt>plt.legend</tt></a>.</li>
+  <li>Don't forget the title. Add a title with <tt>plt.title</tt>.</li>
+  <li>The Ideal line above represents the "uniform distribution" (where each digit occurs with equal
+    frequency &mdash; that is, utterly randomly). In order to make this line, you will need a list of
+    length 10 in which every element is <tt>0.1</tt></li>
+</ul>
+
+<p>
+The Iran election data are rather different from the expected flat line at <tt>y = 0.1</tt>.  Are
+these data different <em>enough</em> that we can conclude that the numbers
+are probably fake?  No &mdash; you can't tell just by looking at the graphs we have
+created so far.  We will show more principled, statistical ways of making
+this determination.
+</p>
+
+<b>Hints:</b>
+
+<ul>
+    <li>You may wish to reference the
+    <a href="https://matplotlib.org/stable/tutorials/introductory/pyplot.html">pyplot tutorial</a>.
+    As a hint (that is also discussed in the tutorial) be sure that the call to
+    <tt>plt.savefig</tt> comes <b>before</b> any call
+    to <tt>plt.show</tt>. If <tt>plt.savefig</tt> comes
+    after <tt>plt.show</tt>, then the graph will be empty if you run your
+    program from the command line <b>(as we will be doing when we test
+    them)</b>.
+    </li>
+
+    <li>To create the legend at the top left corner, use <tt>plt.legend(loc='upper left')</tt>.
+    </li>
+    <li>
+    To use <tt>pyplot</tt>, add the line <tt>import matplotlib.pyplot as plt</tt> to the top of your
+    file. Then you can call plotting methods as <tt>plt.plot</tt>, <tt>plt.show</tt>, <tt>plt.savefig</tt>, and others.
+    </li>
+
+   
+</ul>
+
+<!--<div style="border-radius: 8px; background: purple; color: white; font-size: 32px; padding: 32px; width: 100%;">
+I haven't changed anything besides formatting below this point!
+</div>-->
+
+<h2 id="problem4">Problem 4: Smaller samples have more variation</h2>
+
+<p>
+With a small sample, the vagaries of random choice might lead to results
+that seem different than expected.  As an example, suppose that you plotted
+a histogram of 20 randomly-chosen digits (10 random numbers, 2 digits per
+number):
+</p>
+
+  <p>
+    <figure>
+      <img class="medium" src="random-10-digits.png" alt="Histogram of 10 random digits">
+      <figcaption>Histogram of 10 randomly-generated digits</figcaption>
+    </figure>
+  </p>
+
+<p>
+That looks much <em>worse</em> than the Iran data, even though it is
+genuinely random! Of course, it would be incorrect to conclude from
+this experiment that the data for this plot is fraudulent and that the
+data for the Iranian election is genuine. <b>Just because your
+observations do not seem to fit a hypothesis does not mean the
+hypothesis is false</b> &mdash; it is very possible that you have not
+yet examined enough data to see the trend.
+</p>
+
+<p><strong>Requirements:</strong></p>
+<p>
+Write a function called <tt>plot_dist_by_sample_size()</tt> that:
+</p>
+<ul>
+  <li>Creates five different collections (one of size 10,
+    another of size 50, then 100, 1000, and 10,000) of random numbers
+    where every element in the collection is a different random
+    number <tt>x</tt> such that <tt>0 &lt;= x &lt; 100</tt> (Note: 100 is
+    not included here, why not?).</li>
+  <li>Plots the digit histograms for each of those collections on one graph. Your function
+    should save your plot as <tt>random-digits.png</tt>.</li>
+  <li>The function should not return anything.</li>
+</ul>
+
+<p><strong>Example:</strong></p>
+<p>
+Calling:
+</p>
+
+<pre>
+plot_dist_by_sample_size()
+</pre>
+
+<p>
+  should produce a graph similar, <b>but not identical</b>, to the figure
+  below.
+</p>
+
+
+  <p>
+    <figure>
+      <img class="medium" src="random-digits-for-handout.PNG" alt="Histogram of five different collections"> 
+      <figcaption>Histogram of five different random collections</figcaption>
+    </figure>
+  </p>
+
+<ul>
+  <li>Don't forget the title, legend, and x- and y-axis labels. Add a
+  title with <tt>plt.title</tt>.</li>
+  <li>Your graph should have 5 lines, one for each of the samples (10, 50, 100, 1000, and
+    10,000), plus a line for the Ideal (so a total of 6 lines).</li>
+  <li>The 5 lines should be in different colors, so that you can
+    distinguish them, and should all be mentioned in the legend.  (The
+    legend will be so large that it may cover up some of the lines;
+    that is OK.)</li>
+  <li> Naturally, random variation will make your graph look different
+    than this one (and it will differ from run to run of your
+    program). It is fine if the range of the y axis varies from run to
+    run. It is also fine if you have a different number of tickmarks
+    on the x axis.</li>
+</ul>
+
+<p>
+Your plot demonstrates that the more datapoints there are, the
+closer the result is to the ideal histogram.  We must take the sample size
+into account when deciding whether a given sample is suspicious.
+</p>
+
+<b>Hints:</b>
+
+<ul>
+  <li>You will want to
+  use <a href="https://docs.python.org/3.7/library/random.html#random.randint"><tt>random.randint</tt></a>
+  to generate numbers in the range [0, 99], inclusive. Make sure to
+  add <tt>import random</tt> to the top of the file, too.</li>
+
+  <li>You may notice that when running your program, if you
+    have created other plots earlier in the program or if you do not
+    close the plotting window after you run the program, <b>successive
+    plots will be drawn to the same window</b>.  To avoid this, you
+    may want to put in a call
+    to <a href="http://matplotlib.org/2.0.2/api/pyplot_api.html#matplotlib.pyplot.clf"><tt>plt.clf()</tt></a>
+    at the end of your function after saving the plot.
+  </li>
+
+  <li>Similarly, if you are running from the command line and the plot
+    diagram that pops up (and pauses your program) annoys you, you may
+    decide to comment out the calls to <tt>show</tt> earlier in your
+    program. This is fine, but make sure to add a call to <tt>clf</tt>
+    at the end of the function. If you don't do this, you will see that the
+    lines from the previous plot(s) are appearing on your current
+    plot.
+  </li>
+</ul>
+
+<h2 id="problem5">Problem 5: Comparing variation of samples</h2>
+
+<p>
+In the previous problem, you can visually see that some lines we have
+plotted are closer to the Ideal line than others.  Rather than judging
+the closeness of two lines with our eyeballs, we would like a way to
+computationally determine how similar two lines are.
+</p>
+
+<p>
+Specifically, we would like to determine whether the difference
+between lines A and B is larger or smaller than the difference
+between lines C and D.  For this, we will define a <em>distance
+metric</em>.  Given two lines, it returns a number &mdash; a distance
+&mdash; that is 0 if the two lines are identical, and is larger the
+more different the two lines are.
+</p>
+
+<p>
+One common measure for the difference/distance between two datasets is the
+<em>mean squared error</em>. MSE is computed as follows: </p>
+<ul>
+  <li>For each point in one dataset:</li>
+  <ul>
+    <li>compute the difference between it and the corresponding point in the other dataset</li>
+    <li>square this difference</li>
+  </ul>
+  <li>Take the average of these squared differences.</li>
+</ul>
+</p>
+
+<p>
+The use of squares means that one really big difference among corresponding
+datapoints yields greater weight than several small differences.  It also means
+that the distance between A and B is the same as the distance between B and
+A. That is, (9 - 4)<sup>2</sup> is the same as (4 - 9)<sup>2</sup>.
+</p>
+
+<p>
+For example, suppose that you had the data that appears in the following
+table and plot:
+</p>
+
+  <table id="sample-data">
+    <tr>
+      <th><i>x</i></th>
+      <th><i>f</i>(<i>x</i>)</th>
+      <th><i>g</i>(<i>x</i>)</th>
+      <th><i>h</i>(<i>x</i>)</th>
+    </tr>
+  
+    <tr>
+      <td>1</td>
+      <td>1</td>
+      <td>2</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>4</td>
+      <td>3</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>9</td>
+      <td>4</td>
+      <td>4</td>
+    </tr>
+  </table>
+
+  <p>
+    <figure>
+      <img class="medium" src="mse-example.png" alt="Example for mean squared error computation">
+      <figcaption>Plot of example MSE data</figcaption>
+    <figure>
+  </p>
+
+<p>
+The MSE difference between <em>f</em> and <em>g</em> is
+ ((1-2)<sup>2</sup> +
+ (4-3)<sup>2</sup> +
+ (9-4)<sup>2</sup>) / 3 = 9.<br />
+The MSE difference between <em>f</em> and <em>h</em> is
+ ((1-6)<sup>2</sup> +
+ (4-5)<sup>2</sup> +
+ (9-4)<sup>2</sup>) / 3 = 17.<br />
+The MSE difference between <em>g</em> and <em>h</em> is
+ ((2-6)<sup>2</sup> +
+ (3-5)<sup>2</sup> +
+ (4-4)<sup>2</sup>) / 3 = 6.66666666667.<br />
+</p>
+
+<p>
+The actual values of the MSE (in this case: 9, 17 and 6.66666666667)
+are not interesting; it's only comparisons between them that are.
+For example, these numbers show that
+<em>g</em> and <em>h</em> are the most similar (have the smallest MSE), and
+<em>f</em> and <em>h</em> are the most different (have the largest
+MSE).
+</p>
+
+<p><strong>Requirements:</strong></p>
+
+<p>
+Write a function <tt>mean_squared_error(numbers1, numbers2)</tt> that:
+</p>
+<ul>
+  <li>Takes two lists of numbers (assume the lists have the same length
+    and not empty)
+  </li>
+  <li>Returns the mean squared error between the lists.</li>
+</ul>
+
+<p><strong>Example:</strong></p>
+<p>The call:</p>
+<pre>
+mean_squared_error([1, 4, 9], [6, 5, 4])
+</pre>
+<p>Should return:</p>
+<pre>
+17.0
+</pre>
+
+<h2 id="statistics">Statistics background</h2>
+
+<!--We answer a question about it: does that dataset have
+uniformly-distributed ones and tens digits?  If, just from looking at
+our small sample, we can determine that the large unknown dataset
+does <em>not</em> have uniformly-distributed ones and tens digits,
+then we can conclude that the observed sample is fraudulent (it came
+from some other source, such as some bureaucrat's imagination).
+</p>
+<p>
+One sample can't conclusively prove anything about the underlying
+distribution.
+
+ple, there is a very small possibility that, by pure
+coincidence, a fair election might produce 120 numbers that all end
+with &ldquo;11&rdquo;.  If we saw a sample whose ones-and-tens-digit
+histogram is all 1, we would be quite sure, but <em>not</em> 100%
+sure, that the data is fraudulent.
+ -->
+
+<p>
+The 120 datapoints from the 2009 Iranian election were generated by
+some process.  That process could have been:
+</p>
+<ul>
+  <li>(a) an actual valid election or</li>
+  <li>(b) some other process, like a bureaucrat making up 120
+    numbers.</li>
+</ul>
+
+<p>If process (a) was used, then we might expect the data points
+to have uniformly-distributed ones and tens digits.  Although we also
+know that any <b>one</b> set of 120 data points could look suspicious
+(e.g. all 120 numbers end with &ldquo;77&rdquo;) yet still be data
+from a valid election - there is a very small possibility that, by
+pure coincidence, a fair election could have produced these
+results. </p>
+
+<p>
+If you ran your code for problem 4 several times you saw how a
+histogram of a sample of 10 *actual* random numbers often did not look
+much like the "Ideal" histogram. 100 *actual* random numbers looked
+more "Ideal", and 1,000 looked even more "Ideal".  Results from an
+Iranian election with these candidates and these provinces will only
+ever consist of 120 data points. We shouldn't expect a histogram of
+120 points to look as "Ideal" as a histogram made from 1,000
+points. But what we are really wondering is, does the histogram for
+the reported results of the 2009 Iranian election look like a
+histogram we would get for a set of 120 <b>randomly</b> generated data
+points? </p>
+
+<p>
+While we could potentially use a statistical formula to calculate how
+likely it is that the results of the 2009 Iranian election occurred
+that way by chance, we will use a different approach. Instead, </p>
+<ul>
+  <li>We will generate 10,000 samples of 120 randomly generated data points and
+see how the 2009 Iranian election results compare to those 10,000
+    samples.</li>
+</ul>
+<p>
+As in problem 4, we expect that a larger number of samples will lead
+to less variation (so we will use 10,000 sets of 120 numbers rather
+than say just 10 sets of 120 numbers). In particular <b>we will see how
+the 2009 Iranian election results compare to the ideal distribution
+and also how each of the 10,000 actual random samples compare to the ideal
+    distribution.</b>  We talk more below in problem 6 and 7 about how we will
+interpret this comparison.
+</p>
+
+<!--<p>
+We saw in problem 4 how larger sample sizes had less variation.
+</p>-->
+
+<p>
+Our methodology is as follows:
+</p>
+<ul>
+<li>We take as an assumption that the observed sample (the Iranian
+election data) is <b>not</b> fraudulent (they are the actual,
+unadulterated vote counts from the election) &mdash; we call this the
+  &ldquo;<b>null hypothesis</b>&rdquo;.</li>
+<li>Our question is whether we can,
+  with high likelihood, reject that assumption.</li>
+<li> Our specific question
+is, <b>&ldquo;What is the likelihood that the Iranian election data is
+a sample of a large unknown dataset whose least significant
+    digits <em>are</em> uniformly distributed?&rdquo;</b></li>
+</ul>
+
+
+
+<h2 id="problem6">Problem 6: Comparing variation of samples</h2>
+
+<p><strong>Requirements (part 1 of 2):</strong></p>
+<p>
+  Write a function called <tt>calculate_mse_with_uniform(histogram)</tt> that:</p>
+<ul>
+  <li>Takes a histogram (as created
+    by <tt>ones_and_tens_digit_histogram</tt>)</li>
+  <li>Returns the mean squared error of the given histogram with the
+    uniform distribution.</li>
+</ul>
+
+<p><strong>Example:</strong></p>
+
+<p>
+Invoking <tt>calculate_mse_with_uniform</tt> with the the Iranian election results histogram
+(for the ones and tens digits) should <b>return</b> the result
+0.000739583333333, or approximately 0.0007.
+
+<!-- (It is alright if the last two or three digits are slightly different).
+-->
+</p>
+
+<p>To be more explicit, the call:</p>
+<pre>
+calculate_mse_with_uniform(histogram)
+</pre>
+<p>Should return:</p>
+<pre>
+0.000739583333333
+</pre>
+
+<p>
+Of course, this number on its own does not mean anything &mdash; we
+don't know whether it is unusually low, or unusually high, or about
+average.  What MSE would 120 randomly generated data points have?
+</p>
+
+<p><strong>Requirements (part 2 of 2):</strong></p>
+
+<p>
+  Write a function called <tt>compare_iran_mse_to_samples(iran_mse, number_of_iran_datapoints)</tt> that:</p>
+<ul>
+  <li>Takes two inputs: the Iranian MSE (as computed
+    by <tt>calculate_mse_with_uniform</tt>) and the number of data
+    points in the Iranian dataset (how can you get this information?
+    Remember that for the Iranian dataset, this should be 120 &mdash;
+    however, do not hard-code 120 into your program.).</li>
+  <li>Builds 10,000 groups of random numbers, where each number, x, is
+    randomly generated such that 0 <= x < 100, and each
+    group is the same size as the Iranian election data (120 numbers)</li>
+  <li>Computes the MSE with the uniform distribution for each of these
+    groups.</li>
+  <li>Compares each of these 10,000 MSEs to the Iranian MSE that was
+    passed into the function as a parameter.</li>
+  <li>In particular:</li>
+  <ul>
+    <li><b>Determine how many of the 10,000 random MSEs are
+    larger than or equal to the Iran MSE</b> (for our sample of the
+      2009 Iranian election data, the MSE is ~0.0007)</li>
+    <li><b>Determine how many of the 10,000 random MSEs are smaller than
+     the Iran MSE</b></li>
+  <li><b>Determine the Iranian election null hypothesis rejection level</b></li>
+    <li>Print all of these values after the Iranian MSE. </li>
+  </ul>
+  <li>This function should not return anything.</li>
+</ul>
+
+<p> With each run of your program, you should expect a slightly
+different outcome from this function call.
+
+</p>
+<p><strong>Example:</strong></p>
+<p>Calling the function in your program:</p>
+<pre>
+compare_iran_mse_to_samples(0.000739583333333, 120)
+</pre>
+<p>
+You would see the following, except that ___ is replaced by your answers:
+</p>
+<pre>
+2009 Iranian election MSE: ___
+Quantity of MSEs larger than or equal to the 2009 Iranian election MSE: ___
+Quantity of MSEs smaller than the 2009 Iranian election MSE: ___
+2009 Iranian election null hypothesis rejection level p: ___
+</pre>
+<p>
+(See Problem 7 below for more about the p value)
+</p>
+
+
+<b>Hints:</b>
+
+<ul>
+  <li>Some things you are asked to do in this problem are very similar
+    to things you've done before.  (For example, you've already
+    written code to produce a random sample of some size and compute
+    its histogram.)  Rather than copying that old code into the
+    solution for this problem (which is the wrong approach), you
+    should move that old code into a function that you can use both in
+    the old problem and this one. You will lose points if we see code
+    duplicated multiple times.</li>
+
+  <li>It is <em>not</em> okay to hard-code the value 120 into your
+    program. Hard-coding a value such as this one makes your code less
+    flexible &mdash; in this case, if you hard-code 120, then your
+    analysis won't be valid on any dataset other than this one.</li>
+</ul>
+
+<h2 id="problem7">Problem 7: Interpret your results</h2>
+
+<h2 id="interpret-results">Interpreting statistical results</h2>
+
+<p>
+Below are some possibilities for the outcome of the previous question.
+They each include an explanation of how to interpret such a
+result. <b>You should pay attention to the % of random MSEs that are
+smaller than the Iranian election MSE.</b>
+</p>
+
+<p>
+Remember that the MSEs in this function and discussed below are a
+measure of how different the ones_and_tens_digit_histogram for that
+dataset were from the ideal, uniform distribution. The greater the
+MSE, the more different from the ideal, and therefore the more likely
+the data are fraudulent.
+</p>
+
+<p>
+Also, remember that the null hypothesis is that the Iranian election
+data are <em>not</em> fraudulent. We are looking to see if the Iranian
+election was different enough from a random distribution that we can
+"reject the null hypothesis" (conclude the data <em>are</em>
+fraudulent).
+<ul>
+
+<li>
+<p>
+  Suppose that <b>9992</b> of the random MSEs were smaller than the
+Iranian election MSE (and therefore <b>8</b> were larger or
+equal). This means that only about 0.08% of genuine elections would be
+as different from the uniform distribution as the Iranian election
+was. Given that, it is <b>highly unlikely</b> that the Iranian
+election was genuine, so we say that we are
+<b>99.92% confident</b> that the data are fraudulent. More precisely,
+your program should output
+<b>&ldquo;2009 Iranian election null hypothesis rejection level p: 0.0008&rdquo;.</b>
+</p>
+</li>
+
+<li>
+<p>
+Suppose that <b>8871</b> of the random MSEs were smaller than the
+Iranian election MSE (and therefore <b>1129</b> were larger or
+equal). This means that only 11.29% of genuine elections were as
+different from the uniform distribution as the Iranian election
+was. Given that, it is <b>somewhat unlikely</b> that the Iranian MSE
+would be this high, but not so surprising that we can say the data are
+fraudulent.
+</p>
+
+<p>
+By convention, when we observe an event (such as the Iranian MSE being
+a particular value) that is more than 5% likely, we say that it does
+not provide statistically significant evidence to reject the null
+hypothesis. This means that, by convention, when a result is reported
+as "statistically significant", there is less than a 5% chance that
+the result is just a fluke caused by natural randomness.
+</p>
+</li>
+
+<li>
+<p>
+Suppose that <b>4833</b> of the random MSEs were smaller than the
+Iranian election MSE (and therefore <b>5167</b> were larger or
+equal). This means that only 51.67% of genuine elections were as
+different from the uniform distribution as the Iranian election was.
+This is not surprising at all; it provides no evidence regarding the
+null hypothesis.
+</p>
+</li>
+
+<li>
+<p>
+Suppose that <b>29</b> of the random MSEs were smaller than the
+Iranian election MSE (and therefore <b>9971</b> were larger or
+equal). This means that 99.71% of genuine elections were as different
+from the uniform distribution as the Iranian election was. Again, this
+provides no evidence regarding the null hypothesis.
+</p>
+
+<p>
+(However, that 99.71% of elections deviated more than this example
+from the ideal is unusual in itself. That's remarkably close to the
+theoretical ideal &mdash; much closer than one would typically expect
+a randomly-chosen sample of that size to be. Maybe the data were
+fudged to look really, really natural &mdash; too natural,
+suspiciously natural.  In any event, this result does not give grounds
+for accusing the election authorities of fraud, given what we were
+measuring.)
+</p>
+</li>
+</ul>
+
+<p>
+An interesting note about the phrase "statistically significant": suppose that you are only
+testing genuine, non-fraudulent elections. Then, 5% of the time, the above procedure will cause
+you to cry foul and make an incorrect accusation of fraud. This is called a
+<em>false positive</em> or <em>false alarm</em>. False positives are an inevitable risk
+of statistics. If you run enough different statistical tests, then by pure
+chance, some of them will (seem to) yield an interesting result
+(<a href="http://xkcd.com/882/">relevant XKCD cartoon</a>). You can reduce the chance of such an
+error by reducing the 5% threshold discussed above. Doing so makes your test less sensitive; your test
+will more often suffer a <em>false negative</em> or <em>failed alarm</em> &mdash; a
+situation where there really was an effect but you missed it. That is, there
+really was fraud but it was not detected.
+</p>
+
+<p>
+In this assignment, you have computed <em>approximated</em>
+statistical confidence via simulation: generation of random data, then
+comparison.  This idea of performing many trials, and seeing how
+likely or unlikely the real data are, is at the heart of all
+statistics, and it is more fundamental than memorizing a set of
+complex formulas. This approach can be applied in many situations,
+including those when you do not have an explicit formula.
+
+
+</p>
+
+<p><strong>Requirements:</strong></p>
+<p>
+<b>Interpret your results and write your answers in <tt>answers.txt</tt>.</b> State
+whether the data suggest that the Iranian election results were fraudulent. Then
+justify your answer by giving <em>p</em> and comparing it to the
+threshold for statistical significance, <em>p</em>=0.05.
+</p>
+
+<h2 id="problem8">Problem 8: Other datasets</h2>
+
+<p>
+We have provided you with another dataset, from the 2008 US
+presidential election.  It appears in the
+file <tt>election-us-2008.csv</tt>, and is taken from
+<a href="http://en.wikipedia.org/wiki/United_States_presidential_election,_2008">Wikipedia</a>.
+Consider the null hypothesis that it <em>is</em> a genuine dataset
+(and therefore should have a uniform distribution of ones and tens
+digits).
+</p>
+
+<p>
+  Implement a function called <tt>compare_us_mse_to_samples(us_mse, number_of_us_datapoints)</tt> that performs the same analysis as
+  <tt>compare_iran_mse_to_samples</tt> but with 2008 US presidential election dataset.
+</p>
+
+
+<p>
+  When finished with this problem, when you
+run <tt>fraud_detection.py</tt>, it's output should <b>exactly</b>
+match the following formatting, including capitalization and spacing
+(except where ___ is replaced by your answers):
+</p>
+
+<pre>
+2009 Iranian election MSE: ___
+Quantity of MSEs larger than or equal to the 2009 Iranian election MSE: ___
+Quantity of MSEs smaller than the 2009 Iranian election MSE: ___
+2009 Iranian election null hypothesis rejection level p: ___
+
+2008 United States election MSE: ___
+Quantity of MSEs larger than or equal to the 2008 United States election MSE: ___
+Quantity of MSEs smaller than the 2008 United States election MSE: ___
+2008 United States election null hypothesis rejection level p: ___
+</pre>
+
+<p><strong>Requirements:</strong></p>
+
+<ul>
+  <li>Update <tt>fraud_detection.py</tt> so that it will also print
+    out calculations for the United States 2008 presidential election
+    in addition to the 2009 Iranian election. Use the following list
+    of candidates:</li>
+
+  <pre>
+    us_2008_candidates  = ["Obama", "McCain", "Nader", "Barr", "Baldwin", "McKinney"]</pre>
+
+  <li>You do <em>not</em> need to produce graphs or plots for the US
+    election &mdash; just the textual output.</li>
+
+  <li><b>You should modify <tt>fraud_detection.py</tt> so that there is no
+duplication between
+  <tt>compare_iran_mse_to_samples</tt>
+  and <tt>compare_us_mse_to_samples</tt></b>.
+  </li>
+
+  <li>
+    <b>In <tt>answers.txt</tt>, state whether you can reject that
+      hypothesis, and with what confidence. Briefly justify your
+      answer.</b>  (Not to give away the answer, but if your results
+      tell you to reject the null hypothesis and conclude that the US
+      election was fraudulent, then there's probably a bug in your
+      code!)</li>
+</ul>
+
+<b>Hints:</b>
+
+<ul>
+  <li>
+    When data is missing (that is, an empty space in
+    the <tt>.csv</tt> file), your calculation should ignore that
+    data.  Do <em>not</em> transform it into a zero.
+    You may have to update your implementation of <tt>extract_election_votes</tt>.</li>
+
+  <li>The best way to remove duplication
+    between <tt>compare_iran_mse_to_samples</tt>
+    and <tt>compare_us_mse_to_samples</tt> is to move your logic into
+    a new, third function that takes several arguments (and has a
+    useful docstring!) and have both of these functions call the third
+    function with arguments specific to either the US or Iran.</li>
+
+  <li>Do not include data for "other voters" in your calculations.</li>
+
+  <li>Remember that, unlike the Iranian dataset, the US dataset is of
+    some length other than 120. Make sure to use the correct
+    length!</li>
+</ul>
+
+<h1 id="part-1-submit">Submit your work</h1>
+
+You are almost done!
+
+<ul>
+  <li>
+    At the bottom of your <tt>answers.txt</tt> file, state which students or other people (besides
+    the course staff) helped you with the assignment, or that no one did.
+  </li>
+
+  <li>
+    Make sure that <tt>fraud_detection.py</tt> includes all of the requested output as EXACTLY as
+    described in the <a href="#problem8">Problem 8</a> section.
+  </li>
+
+  <li>
+    Next, make sure that <tt>fraud_detection.py</tt> generates the following files upon execution:
+    <ul>
+      <li><tt>iran-digits.png</tt></li>
+      <li><tt>random-digits.png</tt></li>
+    </ul>
+  </li>
+
+  <li>
+    Also make sure to <b>comment out any calls to <tt>plt.show</tt> and add calls to
+      <tt>plt.clf</tt> at the end of every plotting functions.</b>
+  </li>
+
+  <li>
+    Submit <tt>fraud_detection_tests.py</tt> with <b>at least 2 extra test functions</b> other than
+    the one given in the starter code. For discussion of testing see <a href="#testing">Testing
+      Tips</a> and <a href="#problem0">Getting Started</a>.
+  </li>
+
+  <li>
+    Submit the following files to <a
+      href="https://www.gradescope.com/courses/345007/assignments/1904630">Gradescope</a>.
+
+    <ul>
+      <li><tt>fraud_detection.py</tt></li>
+      <li><tt>fraud_detection_tests.py</tt></li>
+      <li><tt>answers.txt</tt></li>
+    </ul>
+  </li>
+  <li>
+    Note that you should NOT turn in data files as those are already located inside our autograder
+
+  <li>
+    Finally, answer a REQUIRED <a
+      href="https://canvas.uw.edu/courses/1515240/quizzes/1598273">survey</a> asking how much time
+    you spent and other reflections on this assignment.
+  </li>
+</ul>
+
+  <p>
+    Now you are done!
+  </p>
+</body>
+</html>
