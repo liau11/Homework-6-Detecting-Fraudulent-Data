@@ -4,12 +4,20 @@
 
 
 from sunau import Au_read
+import matplotlib.pyplot as plt
 import utils  # noqa: F401, do not remove if using a Mac
 # add your imports BELOW this line
 import csv
 # Your Set of Functions for this assignment goes in here
 
 def extract_election_votes(filename, column_names):
+    """
+    Input:
+        filename - name of the file of the data
+        column_names - a list of column names
+    Output:
+        Returns a list of integars from the columns from every row
+    """
     f = open(filename)
     input_file = csv.DictReader(f)
 
@@ -23,6 +31,14 @@ def extract_election_votes(filename, column_names):
     return votes
 
 def ones_and_tens_digit_histogram(numbers):
+    """
+    Input: A list of integars
+    Output: Returns a list of integars
+    
+    Finding the frequency of digits found in ones place and tens place
+    by pooling the digits and then dividing by the total number of digits
+    we looked at
+    """
     frequency = []
     for i in range(10):
         frequency.append(0)
@@ -32,9 +48,19 @@ def ones_and_tens_digit_histogram(numbers):
             if num % 10 == i:
                 frequency[i] += 1
         frequency[i] = frequency[i] / (2 * len(numbers))
-    print(frequency)
+    return frequency
 
+def plot_iran_least_digits_histogram(histogram):
 
+    plt.title("Distribution of the last two digits in Iranian dataset")
+    digits = [0.1] * 10
+    plt.plot(digits, label="Ideal")
+    plt.plot(histogram, label="Iran")
+    plt.legend(loc='upper left')
+    plt.xlabel("Digit")
+    plt.ylabel("Frequency")
+    plt.savefig("iran-digits.png")
+    plt.show()
 
 
 # The code in this function is executed when this
@@ -45,7 +71,8 @@ def main():
     # This code should produce the output expected from your program.
     iran_candidates_2009 = ["Ahmadinejad", "Rezai", "Karrubi", "Mousavi"]
     num_votes_list = extract_election_votes("election-iran-2009.csv", iran_candidates_2009)
-    ones_and_tens_digit_histogram(num_votes_list)
+    histogram = ones_and_tens_digit_histogram(num_votes_list)
+    plot_iran_least_digits_histogram(histogram)
 
 if __name__ == "__main__":
     main()
