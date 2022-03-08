@@ -4,10 +4,12 @@
 
 
 from sunau import Au_read
+from importlib_metadata import distribution
 import matplotlib.pyplot as plt
 import utils  # noqa: F401, do not remove if using a Mac
 # add your imports BELOW this line
 import csv
+import random
 # Your Set of Functions for this assignment goes in here
 
 def extract_election_votes(filename, column_names):
@@ -62,6 +64,21 @@ def plot_iran_least_digits_histogram(histogram):
     plt.savefig("iran-digits.png")
     plt.show()
 
+def plot_dist_by_sample_size():
+    plt.title("Distribution of last two digits in randomly generated samples")
+    digits = [0.1] * 10
+    plt.plot(digits, label="Ideal")
+    sample_size = [10, 50, 100, 1000, 10000]
+    for sample in sample_size:
+        dist = [random.randint(1, 99) for i in range(sample)]
+        frequency = ones_and_tens_digit_histogram(dist)
+        sample_label = str(sample) + " random letters"
+        plt.plot(frequency, label=sample_label)
+    plt.legend(loc='upper left')
+    plt.xlabel("Digit")
+    plt.ylabel("Frequency")
+    plt.savefig("random-digits.png")
+    plt.show()
 
 # The code in this function is executed when this
 # file is run as a Python program
@@ -73,6 +90,8 @@ def main():
     num_votes_list = extract_election_votes("election-iran-2009.csv", iran_candidates_2009)
     histogram = ones_and_tens_digit_histogram(num_votes_list)
     plot_iran_least_digits_histogram(histogram)
+    plot_dist_by_sample_size()
+    
 
 if __name__ == "__main__":
     main()
