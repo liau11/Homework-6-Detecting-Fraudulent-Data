@@ -53,7 +53,6 @@ def ones_and_tens_digit_histogram(numbers):
     return frequency
 
 def plot_iran_least_digits_histogram(histogram):
-
     plt.title("Distribution of the last two digits in Iranian dataset")
     digits = [0.1] * 10
     plt.plot(digits, label="Ideal")
@@ -63,6 +62,7 @@ def plot_iran_least_digits_histogram(histogram):
     plt.ylabel("Frequency")
     plt.savefig("iran-digits.png")
     plt.show()
+    plt.clf()
 
 def plot_dist_by_sample_size():
     plt.title("Distribution of last two digits in randomly generated samples")
@@ -79,6 +79,23 @@ def plot_dist_by_sample_size():
     plt.ylabel("Frequency")
     plt.savefig("random-digits.png")
     plt.show()
+    plt.clf()
+
+def mean_squared_error(numbers1, numbers2):
+    """
+    Input: 
+        numbers1: list of numbers
+        numbers2: list of numbers
+    Output:
+        Returns the mean squared error between the two lists
+    """
+    running_squared_sum = 0
+    for i in range(len(numbers1)):
+        running_squared_sum += (numbers1[i] - numbers2[i]) ** 2
+    mean_squared_error = running_squared_sum / len(numbers1)
+    print(mean_squared_error)
+
+def calculate_mse_with_uniform(histogram):
 
 # The code in this function is executed when this
 # file is run as a Python program
@@ -91,6 +108,7 @@ def main():
     histogram = ones_and_tens_digit_histogram(num_votes_list)
     plot_iran_least_digits_histogram(histogram)
     plot_dist_by_sample_size()
+    mean_squared_error(numbers_1, numbers_2)
     
 
 if __name__ == "__main__":
