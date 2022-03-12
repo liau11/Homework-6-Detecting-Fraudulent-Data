@@ -27,9 +27,34 @@ def test_ones_and_tens_digit_histogram():
         assert math.isclose(actual[i], expected[i])
 
 
+def test_mean_squared_error():
+    actual = fd.mean_squared_error([1, 4, 9], [6, 5, 4])
+    expected = 17.0
+    assert math.isclose(actual, expected)
+
+    actual = fd.mean_squared_error([2, 3, 4], [6, 5, 4])
+    expected = 6.66666666667
+    assert math.isclose(actual, expected)
+
+    actual = fd.mean_squared_error([1, 4, 9], [2, 3, 4])
+    expected = 9
+    assert math.isclose(actual, expected)
+
+
+def test_get_p_value():
+    actual = fd.get_p_value(39)
+    expected = 0.0039
+    assert math.isclose(actual, expected)
+
+    actual = fd.get_p_value(0)
+    expected = 0.0
+    assert math.isclose(actual, expected)
+
+
 def main():
     test_ones_and_tens_digit_histogram()
-    # call other test functions here
+    test_mean_squared_error()
+    test_get_p_value()
 
 
 if __name__ == "__main__":
