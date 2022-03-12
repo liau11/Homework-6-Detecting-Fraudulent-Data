@@ -1,4 +1,4 @@
-Name: ...
+Name: Lily Au
 CSE 160
 Homework 6
 
@@ -8,14 +8,30 @@ the ellipses (the three dots) with your answers.
 
 Answer to Problem 7:
 
-...
+2009 Iranian election MSE: 0.0007395833333333335
+Quantity of MSEs larger than or equal to the 2009 Iranian election MSE: 435
+Quantity of MSEs smaller than the 2009 Iranian election MSE: 9565
+2009 Iranian election null hypothesis rejection level p: 0.0435
+
+The p-value is 0.0435, which means about 4.35% of genuine elections were as 
+different from the uniform distrution as the Iran election was. This means
+that we can reject the Null Hypothesis because the p-value is less than 0.05,
+meaning there is statistical difference. We are 95.65% confident that the 
+data was fradulent. 
 
 Answer to Problem 8:
 
-...
+2008 United States election MSE: 0.0001410025876058068
+Quantity of MSEs larger than or equal to the 2008 United States election MSE: 5245
+Quantity of MSEs smaller than the 2008 United States election MSE: 4755
+2008 United States election null hypothesis rejection level p: 0.5245
+
+The p-value is 0.5245, which means about 52.45% of genuine elections were as 
+different from the uniform distrution as the US election was. This provides
+no evidence regarding the null hypothesis.
 
 Collaboration:
 
-...
+None.
 
 
