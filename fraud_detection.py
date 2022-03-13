@@ -39,6 +39,7 @@ def ones_and_tens_digit_histogram(numbers):
     """
     Input: A list of integars
     Output: Returns a list of integars
+
     Finding the frequency of digits found in ones place and tens place
     by pooling the digits and then dividing by the total number of digits
     we looked at
@@ -64,6 +65,9 @@ def plot_iran_least_digits_histogram(histogram):
     Output:
         Function does not return anything. It outputs and saves
         the plot to a png file.
+
+    Takes a histogram and plots it on a graph. Graph is saved
+    to a file.
     """
     plt.title("Distribution of the last two digits in Iranian dataset")
     uniform_dist = [0.1] * 10
@@ -83,8 +87,11 @@ def generate_random_nums(size):
         size - size of sample
     Output:
         Returns a list of randoms from 0 - 99
+
+    Generates and returns a random list of numbers
+    that range from 0 - 99.
      """
-    rand_num_list = [random.randint(1, 99) for i in range(size)]
+    rand_num_list = [random.randint(0, 99) for i in range(size)]
     return rand_num_list
 
 
@@ -117,6 +124,8 @@ def mean_squared_error(numbers1, numbers2):
         numbers2: list of numbers
     Output:
         Returns the mean squared error between the two lists
+
+    Takes two lists of integars and returns the calculated MSE
     """
     running_squared_sum = 0
     for i in range(len(numbers1)):
@@ -129,6 +138,9 @@ def calculate_mse_with_uniform(histogram):
     """
     Input: Histogram created by ones_and_tens_digit_histogram function
     Output: Returns the mean squared error of the given histogram
+
+    Function takes a histogram and returns the MSE of that histogram
+    with the uniform distribution.
     """
     uniform_dist = [0.1] * 10
     return (mean_squared_error(histogram, uniform_dist))
@@ -144,6 +156,12 @@ def larger_count(country_mse, country_data):
         the country in interest
     Output:
         returns larger_count
+
+    Function builds 10000 groups of random numbers from 0 - 99.
+    Each group of random numbers is the same size as the election
+    data. MSE is then computed for each group and is compared to
+    the country of interest's MSE. The number of times it is
+    larger than or equal to the country's MSE is returned.
     """
     larger_count = 0
     for i in range(10000):
@@ -162,6 +180,8 @@ def get_p_value(larger_count):
         the country's MSE
     Output:
         Returns p_value
+
+    Divides the integar stored in larger_count by 10000 to get p-value.
     """
     p_value = larger_count / 10000
     return p_value
@@ -174,6 +194,9 @@ def smaller_count(larger):
         the country's MSE
     Output:
         Returns smaller (number of random MSEs that are smaller)
+
+    Returns the difference between 10000 and integar stored in variable
+    "larger"
     """
     smaller = 10000 - larger
     return smaller
@@ -186,6 +209,9 @@ def compare_iran_mse_to_samples(iran_mse, number_of_iran_datapoints):
         number_of_iran_datapoints - a list of votes from the Iran election
     Output:
         Prints out statistics and p_value for the Iraian election
+
+    Function calls other functions to get statistics of data and prints
+    it out to the terminal.
     """
     larger = larger_count(iran_mse, number_of_iran_datapoints)
     p_value = get_p_value(larger)
@@ -207,6 +233,9 @@ def compare_us_mse_to_samples(us_mse, number_of_us_datapoints):
         number_of_us_datapoints - a list of votes from the US election
     Output:
         Prints out statistics and p_value for the US election
+
+    Function calls other functions to get statistics of data and prints
+    it out to the terminal.
     """
     larger = larger_count(us_mse, number_of_us_datapoints)
     p_value = get_p_value(larger)
